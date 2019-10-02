@@ -3,7 +3,3 @@ gen-cert:
 			-keyout $(HOME)/.certs/localhost.key \
 			-out $(HOME)/.certs/localhost.crt \
 			-config $(CURDIR)/localhost.conf
-
-update-conf:
-		docker-compose exec web nginx -s reload
-

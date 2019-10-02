@@ -2,26 +2,37 @@ version: '3'
 
 services:
 
-  api: 
+  api:
     build:
       context: ./api
     volumes:
     - ./api:/app
+    environment:
+    - 'VAULT_ADDR=http://vault:8200'
+    - 'VAULT_TOKEN=abc123'
+    - 'CLIENT_SECRETS_FILE=/secrets/client_secrets.json'
+    - 'OAUTH2_SCOPES=https://www.googleapis.com/auth/drive.metadata.readonly'
+    networks:
+    - default
+
+  web: 
+    build:
+      context: ./web
+    volumes:
+    - ./web:/app
     - ${HOME}/.certs/localhost.crt:/etc/ssl/certs/localhost.crt
     - ${HOME}/.certs/localhost.key:/etc/ssl/private/localhost.key
     - ${HOME}/.secrets/local_testing.json:/secrets/client_secrets.json
     environment:
     - 'DEBUG=True'
-    - 'VAULT_ADDR=http://vault:8200'
-    - 'VAULT_TOKEN=abc123'
-    - 'CLIENT_SECRETS_FILE=/secrets/client_secrets.json'
-    - 'OAUTH2_SCOPES=https://www.googleapis.com/auth/drive.metadata.readonly'
+    - 'TLSCERT=/etc/ssl/certs/localhost.crt'
+    - 'TLSKEY=/etc/ssl/private/localhost.key'
     - 'FLASK_SECRET=cba321'
-    - 'OAUTH2_REDIRECT=https://localhost:4443/oauth2callback'
+    - 'OAUTH2_REDIRECT=https://localhost:8080/oauth2callback'
     networks:
     - default
     ports:
-    - '8008:80'
+    - '8080:80'
 
   vault:
     image: vault:1.2.3
@@ -33,16 +44,3 @@ services:
     - 'VAULT_DEV_ROOT_TOKEN_ID=abc123'
     cap_add:
     - IPC_LOCK
-
-  web:
-    image: nginx:1.17.4
-    restart: always
-    volumes:
-    - ./nginx.conf:/etc/nginx/nginx.conf
-    - ${HOME}/.certs/localhost.crt:/etc/ssl/certs/localhost.crt
-    - ${HOME}/.certs/localhost.key:/etc/ssl/private/localhost.key
-    networks:
-    - default
-    ports:
-    - 8080:80
-    - 4443:443

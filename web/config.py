@@ -11,6 +11,8 @@ _config_vars = [
     'OAUTH2_SCOPES',
     'FLASK_SECRET',
     'OAUTH2_REDIRECT',
+    'TLSCERT',
+    'TLSKEY',
 ]
 
 def validate():
@@ -43,4 +45,8 @@ def get_config():
     for var in _config_vars:
         setattr(c, var, os.environ[var])
     c.OAUTH2_SCOPES = c.OAUTH2_SCOPES.split(',')
+
+    # NOTE: !!! 64 bits of ENTROPY, not 64 characters !!!
+    c.CODE_VERIFIER = os.urandom(64)
+
     return c

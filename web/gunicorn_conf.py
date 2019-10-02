@@ -7,8 +7,8 @@ workers = 4
 loglevel = 'info'
 errorlog = '-'
 accesslog = '-'
-certfile = '/etc/ssl/certs/localhost.crt'
-keyfile = '/etc/ssl/private/localhost.key'
+certfile = os.environ.get('TLSCERT')
+keyfile = os.environ.get('TLSKEY')
 
 def on_starting(server):
     from config import validate

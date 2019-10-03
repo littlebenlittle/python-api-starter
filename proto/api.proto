@@ -1,0 +1,44 @@
+
+syntax = 'proto3';
+
+message Empty {}
+
+message Request {
+	User user = 1;
+	repeated string scopes = 2;
+	string redirectUrl = 3;
+}
+
+message Reply {
+	string url = 1;
+	int32 flowId = 2;
+}
+
+message Url {
+	string url = 1;
+}
+
+message User {
+	string name = 1;
+}
+
+message Token {
+	string token = 1;
+}
+
+message UserAndUrl {
+	User user = 1;
+	Url url = 2;
+}
+
+message Credentials {
+	Token accessToken = 1;
+	Token refreshToken = 2;
+}
+
+service Api {
+	rpc getAuthUrl (Request) returns (Url);
+	rpc submitRedirectUrl (UserAndUrl) returns (Empty);
+	rpc getToken (User) returns (Empty);
+	rpc storeCredentials (Credentials) returns (Empty);
+}

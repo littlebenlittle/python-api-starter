@@ -4,7 +4,7 @@ import sys
 from types import SimpleNamespace
 
 _config_vars = [
-    'SCOPES',
+    'REDIRECT_URI',
     'TLSCERT',
     'TLSKEY',
 ]
@@ -26,5 +26,4 @@ def get_config():
     c = SimpleNamespace()
     for var in _config_vars:
         setattr(c, var, os.environ[var])
-    c.SCOPES = c.SCOPES.split(',')
     return c

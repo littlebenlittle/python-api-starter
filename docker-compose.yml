@@ -2,37 +2,50 @@ version: '3'
 
 services:
 
-  api:
+  grpc-api:
     build:
-      context: ./api
+      context: ./api/grpc
     volumes:
-    - ./api:/app
+    - './api/grpc:/app'
+    - '${HOME}/.secrets/local_testing.json:/secrets/client_secrets.json'
     environment:
     - 'VAULT_ADDR=http://vault:8200'
     - 'VAULT_TOKEN=abc123'
     - 'CLIENT_SECRETS_FILE=/secrets/client_secrets.json'
     - 'OAUTH2_SCOPES=https://www.googleapis.com/auth/drive.metadata.readonly'
+    - 'PYTHON_PB=/python_pb'
     networks:
     - default
+    command: sleep 3600
+
+  http-api:
+    build:
+      context: ./api/http
+    volumes:
+    - './api/http:/app'
+    - '${HOME}/.certs/localhost.crt:/etc/ssl/certs/localhost.crt'
+    - '${HOME}/.certs/localhost.key:/etc/ssl/private/localhost.key'
+    environment:
+    - 'REDIRECT_URI=https://localhost:4443/redirect'
+    - 'TLSCERT=/etc/ssl/certs/localhost.crt'
+    - 'TLSKEY=/etc/ssl/private/localhost.key'
 
   web: 
     build:
       context: ./web
     volumes:
-    - ./web:/app
-    - ${HOME}/.certs/localhost.crt:/etc/ssl/certs/localhost.crt
-    - ${HOME}/.certs/localhost.key:/etc/ssl/private/localhost.key
-    - ${HOME}/.secrets/local_testing.json:/secrets/client_secrets.json
+    - './web:/app'
+    - '${HOME}/.certs/localhost.crt:/etc/ssl/certs/localhost.crt'
+    - '${HOME}/.certs/localhost.key:/etc/ssl/private/localhost.key'
+    - '${HOME}/.secrets/local_testing.json:/secrets/client_secrets.json'
     environment:
-    - 'DEBUG=True'
+    - 'SCOPES=https://www.googleapis.com/auth/drive.metadata.readonly'
     - 'TLSCERT=/etc/ssl/certs/localhost.crt'
     - 'TLSKEY=/etc/ssl/private/localhost.key'
-    - 'FLASK_SECRET=cba321'
-    - 'OAUTH2_REDIRECT=https://localhost:8080/oauth2callback'
     networks:
     - default
     ports:
-    - '8080:80'
+    - '4443:443'
 
   vault:
     image: vault:1.2.3

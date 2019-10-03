@@ -1,12 +1,14 @@
 
+
 import os
 import sys
 from types import SimpleNamespace
 
 _config_vars = [
-    'SCOPES',
-    'TLSCERT',
-    'TLSKEY',
+    'VAULT_ADDR',
+    'VAULT_TOKEN',
+    'CLIENT_SECRETS_FILE',
+    'PYTHON_PB',
 ]
 
 def validate():
@@ -26,5 +28,4 @@ def get_config():
     c = SimpleNamespace()
     for var in _config_vars:
         setattr(c, var, os.environ[var])
-    c.SCOPES = c.SCOPES.split(',')
     return c
